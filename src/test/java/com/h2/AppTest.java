@@ -21,14 +21,21 @@ public class AppTest {
     }
 
     @Test
-    public void assertClassExistence() {
+    public void m02_00_assertClassExistence() {
         final Optional<Class<?>> maybeClass = getAppClass();
         assertTrue(maybeClass.isPresent(), classToFind + " should be present");
         assertEquals(classToFind, maybeClass.get().getCanonicalName());
     }
 
     @Test
-    public void assertPrivateMethodExistence() {
+    public void m02_01_testDoubleTheNumber() {
+        for (int i = 1; i < 10; i++) {
+            assertEquals(2 * i, App.doubleTheNumber(i), i + " should be " + 2 * i);
+        }
+    }
+
+    @Test
+    public void m02_02_assertPrivateMethodExistence() {
         final String methodName = "add";
         final Optional<Class<?>> maybeClass = getAppClass();
         assertTrue(maybeClass.isPresent());
@@ -50,7 +57,7 @@ public class AppTest {
     }
 
     @Test
-    public void assertPrivateMethodCorrectness() throws InvocationTargetException, IllegalAccessException {
+    public void m02_03_assertPrivateMethodCorrectness() throws InvocationTargetException, IllegalAccessException {
         final String methodName = "add";
         final Optional<Class<?>> maybeClass = getAppClass();
         assertTrue(maybeClass.isPresent());
@@ -66,10 +73,4 @@ public class AppTest {
         assertEquals(6, sum123, "1 + 2 + 3 should be 6, got " + sum123);
     }
 
-    @Test
-    public void testDoubleTheNumber() {
-        for (int i = 1; i < 10; i++) {
-            assertEquals(2 * i, App.doubleTheNumber(i), i + " should be " + 2 * i);
-        }
-    }
 }
