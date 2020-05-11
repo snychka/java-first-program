@@ -12,19 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.platform.commons.util.ReflectionUtils.*;
 
-public class AppTest {
+public class Module2_Test {
     private final String classToFind = "com.h2.App";
 
     public Optional<Class<?>> getAppClass() {
         Try<Class<?>> aClass = tryToLoadClass(classToFind);
         return aClass.toOptional();
-    }
-
-    @Test
-    public void m02_00_assertClassExistence() {
-        final Optional<Class<?>> maybeClass = getAppClass();
-        assertTrue(maybeClass.isPresent(), classToFind + " should be present");
-        assertEquals(classToFind, maybeClass.get().getCanonicalName());
     }
 
     @Test
