@@ -127,7 +127,7 @@ public class Module2_Test {
     public void m2_05_assertMainMethodExistence() {
         final String main = "main";
         final Optional<Class<?>> maybeClass = getBestLoanRatesClass();
-        assertTrue(maybeClass.isPresent());
+        assertTrue(maybeClass.isPresent(), "com.h2.BestLoanRates class must be present");
         Class<?> c = maybeClass.get();
         List<Method> methods = Arrays.stream(c.getDeclaredMethods())
                 .filter(m -> m.getName().equals(main))
@@ -153,7 +153,7 @@ public class Module2_Test {
         provideInput(testString);
 
         final Optional<Class<?>> maybeClass = getBestLoanRatesClass();
-        assertTrue(maybeClass.isPresent());
+        assertTrue(maybeClass.isPresent(), "com.h2.BestLoanRates class must be present");
         Class<?> c = maybeClass.get();
 
         Method main = c.getMethod("main", String[].class);
