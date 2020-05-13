@@ -141,8 +141,27 @@ public class Module2_Test {
         assertTrue(isPublic(method), main + " must be a public method");
 
         Class<?>[] parameterTypes = method.getParameterTypes();
-        assertEquals(1, parameterTypes.length, main +  " should accept 1 parameter");
+        assertEquals(1, parameterTypes.length, main + " should accept 1 parameter");
         assertEquals(String[].class, parameterTypes[0], main + " parameter type should be of 'String[]' type");
     }
 
+    @Test
+    public void m2_06_assertMainMethodPromptsName() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        final String name = "H2";
+        final int age = 32;
+        final String testString = name + "\n" + age;
+        provideInput(testString);
+
+        final Optional<Class<?>> maybeClass = getBestLoanRatesClass();
+        assertTrue(maybeClass.isPresent());
+        Class<?> c = maybeClass.get();
+
+        Method main = c.getMethod("main", String[].class);
+        //noinspection JavaReflectionInvocation
+        main.invoke(null, (Object) null);
+
+        List<String> outputList = Arrays.stream(getOutput().split("\n")).collect(Collectors.toList());
+        assertEquals("Enter your name", outputList.get(0));
+        assertEquals("Hello " + name, outputList.get(1));
+    }
 }
