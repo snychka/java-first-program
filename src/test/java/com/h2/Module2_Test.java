@@ -192,4 +192,27 @@ public class Module2_Test {
         assertEquals(3.45f, fieldValues.get(2), bestRates + " should return '3.45f' for key '2'");
         assertEquals(2.67f, fieldValues.get(3), bestRates + " should return '2.67f' for key '3'");
     }
+
+    @Test
+    public void m2_08_testGetRatesMethodExistence() {
+        String getRates = "getRates";
+        final Optional<Class<?>> maybeClass = getBestLoanRatesClass();
+        assertTrue(maybeClass.isPresent(), " com.h2.BestLoanRates should be present");
+        Class<?> c = maybeClass.get();
+        List<Method> methods = Arrays.stream(c.getDeclaredMethods())
+                .filter(m -> m.getName().equals(getRates))
+                .collect(Collectors.toList());
+
+        assertEquals(1, methods.size(), getRates + " must be defined as a method in " + c.getCanonicalName());
+
+        final Method method = methods.get(0);
+        assertEquals(float.class, method.getReturnType(), getRates + " must return 'float' as the return type");
+        assertTrue(isStatic(method), getRates + " must be a static method");
+        assertTrue(isPublic(method), getRates + " must be a public method");
+
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        assertEquals(1, parameterTypes.length, getRates + " should accept 1 parameter");
+        assertEquals(float.class, parameterTypes[0], getRates + " parameter type should be of 'float' type");
+    }
+
 }
