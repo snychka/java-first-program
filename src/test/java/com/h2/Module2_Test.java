@@ -185,7 +185,7 @@ public class Module2_Test {
 
         field.setAccessible(true);
         @SuppressWarnings("unchecked")
-        Map<Integer, Float> fieldValues = (Map<Integer, Float>) field.get(BestLoanRates.class);
+        Map<Integer, Float> fieldValues = (Map<Integer, Float>) field.get(c);
 
         assertEquals(3, fieldValues.size(), bestRates + " should have 3 entries");
         assertEquals(5.50f, fieldValues.get(1), bestRates + " should return '5.50f' for key '1'");
