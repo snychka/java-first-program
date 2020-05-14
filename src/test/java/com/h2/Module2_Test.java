@@ -2,7 +2,6 @@ package com.h2;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.function.Try;
 
@@ -239,5 +238,62 @@ public class Module2_Test {
 
         float bestRate100Yr = (float) method.invoke(null, 100);
         assertEquals(0.0f, bestRate100Yr, "best rate for '100 year' must be '0.0ff'");
+    }
+
+    @Test
+    public void m2_10_testNameAndLoanTerm() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String main = "main";
+        final Optional<Class<?>> maybeClass = getBestLoanRatesClass();
+        assertTrue(maybeClass.isPresent(), " com.h2.BestLoanRates should be present");
+        Class<?> c = maybeClass.get();
+
+        List<Method> methods = Arrays.stream(c.getDeclaredMethods())
+                .filter(m -> m.getName().equals(main))
+                .collect(Collectors.toList());
+
+        assertEquals(1, methods.size(), main + " must be defined as a method in " + c.getCanonicalName());
+        {
+            final String name = "H2";
+            final int loanTermInYears = 2;
+            final String testString = name + "\n" + loanTermInYears;
+            provideInput(testString);
+
+            Method method = c.getMethod("main", String[].class);
+            method.invoke(null, (Object) new String[0]);
+
+            List<String> outputList = Arrays.stream(getOutput().split("\n")).collect(Collectors.toList());
+
+            assertEquals(4, outputList.size(), "There must be 4 statements on console - 1 for asking name, 1 for printing name back, 1 for asking loan term, 1 for printing best available rates (strictly in this order!)");
+
+            assertEquals("Enter your name", outputList.get(0));
+            assertEquals("Hello " + name, outputList.get(1));
+
+            assertEquals("Enter the loan term (in years)", outputList.get(2));
+            assertEquals("Best Available Rate: " + BestLoanRates.bestRates.get(loanTermInYears) + "%", outputList.get(3));
+
+        }
+        {
+            setUpOutput(); // reset the output stream!
+
+            final String name = "H2";
+            final int loanTermInYears = 20;
+            final String testString = name + "\n" + loanTermInYears;
+            provideInput(testString);
+
+            Method method = c.getMethod("main", String[].class);
+            method.invoke(null, (Object) new String[0]);
+
+
+            List<String> outputList = Arrays.stream(getOutput().split("\n")).collect(Collectors.toList());
+
+            assertEquals(4, outputList.size(),  "There must be 4 statements on console - 1 for asking name, 1 for printing name back, 1 for asking loan term, 1 for printing no available rates for term (strictly in this order!)");
+
+            assertEquals("Enter your name", outputList.get(0));
+            assertEquals("Hello " + name, outputList.get(1));
+
+            assertEquals("Enter the loan term (in years)", outputList.get(2));
+            assertEquals("No available rates for term: " + loanTermInYears + " years", outputList.get(3));
+
+        }
     }
 }
