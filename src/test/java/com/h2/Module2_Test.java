@@ -212,7 +212,7 @@ public class Module2_Test {
 
         Class<?>[] parameterTypes = method.getParameterTypes();
         assertEquals(1, parameterTypes.length, getRates + " should accept 1 parameter");
-        assertEquals(float.class, parameterTypes[0], getRates + " parameter type should be of 'float' type");
+        assertEquals(int.class, parameterTypes[0], getRates + " parameter type should be of 'int' type");
     }
 
 }
