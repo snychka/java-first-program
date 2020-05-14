@@ -231,5 +231,13 @@ public class Module2_Test {
         float bestRate1Yr = (float) method.invoke(null, 1);
         assertEquals(5.50f, bestRate1Yr, "best rate for '1 year' must be '5.50f'");
 
+        float bestRate2Yr = (float) method.invoke(null, 2);
+        assertEquals(3.45f, bestRate2Yr, "best rate for '2 year' must be '3.45f'");
+
+        float bestRate3Yr = (float) method.invoke(null, 3);
+        assertEquals(2.67f, bestRate3Yr, "best rate for '3 year' must be '2.67f'");
+
+        float bestRate100Yr = (float) method.invoke(null, 100);
+        assertEquals(0.0f, bestRate100Yr, "best rate for '100 year' must be '0.0ff'");
     }
 }
