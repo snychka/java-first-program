@@ -215,4 +215,21 @@ public class Module2_Test {
         assertEquals(int.class, parameterTypes[0], getRates + " parameter type should be of 'int' type");
     }
 
+    @Test
+    public void m2_09_testGetRatesMethodCorrectness() throws InvocationTargetException, IllegalAccessException {
+        String getRates = "getRates";
+        final Optional<Class<?>> maybeClass = getBestLoanRatesClass();
+        assertTrue(maybeClass.isPresent(), " com.h2.BestLoanRates should be present");
+        Class<?> c = maybeClass.get();
+        List<Method> methods = Arrays.stream(c.getDeclaredMethods())
+                .filter(m -> m.getName().equals(getRates))
+                .collect(Collectors.toList());
+
+        assertEquals(1, methods.size(), getRates + " must be defined as a method in " + c.getCanonicalName());
+
+        final Method method = methods.get(0);
+        float bestRate1Yr = (float) method.invoke(null, 1);
+        assertEquals(5.50f, bestRate1Yr, "best rate for '1 year' must be '5.50f'");
+
+    }
 }
