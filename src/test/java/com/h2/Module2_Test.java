@@ -2,6 +2,7 @@ package com.h2;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.function.Try;
 
@@ -9,11 +10,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -163,5 +166,30 @@ public class Module2_Test {
         List<String> outputList = Arrays.stream(getOutput().split("\n")).collect(Collectors.toList());
         assertEquals("Enter your name", outputList.get(0));
         assertEquals("Hello " + name, outputList.get(1));
+    }
+
+    @Test
+    public void m2_07_testBestRatesExistence() throws IllegalAccessException {
+        String bestRates = "bestRates";
+        final Optional<Class<?>> maybeClass = getBestLoanRatesClass();
+        assertTrue(maybeClass.isPresent(), "com.h2.BestLoanRates class must be present");
+        Class<?> c = maybeClass.get();
+        List<Field> fields = Arrays.stream(c.getFields())
+                .filter(f -> f.getName().equals(bestRates))
+                .collect(Collectors.toList());
+
+        assertEquals(1, fields.size(), bestRates + " must be defined as a field in CommandLineApp.");
+
+        Field field = fields.get(0);
+        assertEquals(java.util.Map.class, field.getType(), bestRates + " must be of type 'Map'");
+
+        field.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Map<Integer, Float> fieldValues = (Map<Integer, Float>) field.get(BestLoanRates.class);
+
+        assertEquals(3, fieldValues.size(), bestRates + " should have 3 entries");
+        assertEquals(5.50f, fieldValues.get(1), bestRates + " should return '5.50f' for key '1'");
+        assertEquals(3.45f, fieldValues.get(2), bestRates + " should return '3.45f' for key '2'");
+        assertEquals(2.67f, fieldValues.get(3), bestRates + " should return '2.67f' for key '3'");
     }
 }
