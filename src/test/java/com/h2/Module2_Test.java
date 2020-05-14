@@ -269,7 +269,7 @@ public class Module2_Test {
             assertEquals("Hello " + name, outputList.get(1));
 
             assertEquals("Enter the loan term (in years)", outputList.get(2));
-            assertEquals("Best Available Rate: " + BestLoanRates.bestRates.get(loanTermInYears) + "%", outputList.get(3));
+            assertEquals("Best Available Rate: 3.45%", outputList.get(3));
 
         }
         {
