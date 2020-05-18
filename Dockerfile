@@ -12,10 +12,10 @@ RUN groupadd projects && useradd -g projects projects && \
 
 USER projects
 
+COPY --chown=projects:projects . .
+
 RUN ["mvn", "clean"]
 
-RUN ["mvn", "de.qaware.maven:go-offline-maven-plugin:resolve-dependencies", "test"]
-
-COPY --chown=projects:projects . .
+RUN ["mvn", "de.qaware.maven:go-offline-maven-plugin:resolve-dependencies", "test", "-Dmaven.test.failure.ignore"]
 
 ENTRYPOINT ["sh"]
