@@ -9,7 +9,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
@@ -17,8 +19,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.platform.commons.util.ReflectionUtils.isPrivate;
-import static org.junit.platform.commons.util.ReflectionUtils.tryToLoadClass;
+import static org.junit.platform.commons.util.ReflectionUtils.*;
 
 public class Module3_Test {
     private final String classToFind = "com.h2.SavingsCalculator";
@@ -78,6 +79,24 @@ public class Module3_Test {
             assertTrue(isPrivate(field), field.getName() + " should be declared private");
             assertEquals(float[].class, field.getType(), field.getName() + " should be of type 'float[]'");
             assertTrue(fieldNames.contains(field.getName()), field.getName() + " is not a valid name. It should be either 'credits' or 'debits'");
+        }
+    }
+
+    @Test
+    public void m3_03_testConstructor() {
+        final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
+        assertTrue(maybeSavingsCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> savingsCalculator = maybeSavingsCalculator.get();
+        final Constructor<?>[] constructors = savingsCalculator.getDeclaredConstructors();
+
+        assertEquals(1, constructors.length, classToFind + " should have 1 constructor");
+
+        final Constructor<?> constructor = constructors[0];
+        assertTrue(isPublic(constructor), "constructor must be declared 'public'");
+        assertEquals(2, constructor.getParameterCount(), "Constructor should have 2 parameters");
+
+        for (final Parameter parameter : constructor.getParameters()) {
+            assertEquals(float[].class, parameter.getType(), "Constructor parameter should be of type 'float[]'");
         }
     }
 }
