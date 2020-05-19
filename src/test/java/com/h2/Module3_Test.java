@@ -164,4 +164,23 @@ public class Module3_Test {
 
         assertEquals(30.0f, result, methodName + " is not returning sum of credits.");
     }
+
+    @Test
+    public void m3_07_testSumOfDebitsExists() {
+        final String methodName = "sumOfDebits";
+
+        final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
+        assertTrue(maybeSavingsCalculator.isPresent());
+        final Class<?> savingsCalculator = maybeSavingsCalculator.get();
+
+        final Method[] methods = savingsCalculator.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method sumOfCredits = filteredMethod.get(0);
+        assertTrue(isPrivate(sumOfCredits), methodName + " must be declared as 'private'");
+        assertEquals(float.class, sumOfCredits.getReturnType(), methodName + " method must return a value of type 'float'");
+    }
+
 }
