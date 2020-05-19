@@ -231,4 +231,29 @@ public class Module3_Test {
 
         assertEquals(int.class, method.getReturnType(), methodName + " method must return a value of type 'int'");
     }
+
+    @Test
+    public void m3_10_testRemainingDaysInMonthWorksCorrectly() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        final String methodName = "remainingDaysInMonth";
+
+        final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
+        assertTrue(maybeSavingsCalculator.isPresent());
+        final Class<?> savingsCalculator = maybeSavingsCalculator.get();
+
+        final Method[] methods = savingsCalculator.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method method = filteredMethod.get(0);
+
+        final LocalDate _1feb2020 = LocalDate.of(2020, 2, 1);
+        assertEquals(28, invokeMethod(method, null, _1feb2020), "For Feb 1, 2020, remainingDaysInMonth should return '29'");
+
+        final LocalDate _15Mar2020 = LocalDate.of(2020, 3, 15);
+        assertEquals(16, invokeMethod(method, null, _15Mar2020), "For Mar 15, 2020, remainingDaysInMonth should return '16'");
+
+        final LocalDate _2Jun2020 = LocalDate.of(2020, 6, 2);
+        assertEquals(28, invokeMethod(method, null, _2Jun2020), "For Jun 02, 2020, remainingDaysInMonth should return '28'");
+    }
 }
