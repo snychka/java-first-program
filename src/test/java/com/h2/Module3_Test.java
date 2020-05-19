@@ -9,10 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -100,7 +97,7 @@ public class Module3_Test {
     }
 
     @Test
-    public void m3_04_testFieldsValueSetWhenConstructorCalled() throws IllegalAccessException {
+    public void m3_04_testFieldsValueSetWhenConstructorCalled() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
         assertTrue(maybeSavingsCalculator.isPresent(), classToFind + " must exist");
         final Class<?> savingsCalculator = maybeSavingsCalculator.get();
@@ -108,19 +105,16 @@ public class Module3_Test {
 
         assertEquals(1, constructors.length, classToFind + " should have 1 constructor");
 
-        final Constructor<?> constructor = constructors[0];
-
         float[] credits = new float[]{10.0f, 20.0f};
         float[] debits = new float[]{5.0f};
+        final Constructor<?> constructor = constructors[0];
+        Object instance = constructor.newInstance(credits, debits);
 
-        final SavingsCalculator calculator = new SavingsCalculator(credits, debits);
-
-        final Class<?> clazz = calculator.getClass();
-        final Field[] fields = clazz.getDeclaredFields();
+        final Field[] fields = savingsCalculator.getDeclaredFields();
 
         for (final Field field : fields) {
             field.setAccessible(true);
-            float[] fieldValues = (float[]) field.get(calculator);
+            float[] fieldValues = (float[]) field.get(instance);
             if (field.getName().equals("credits")) {
                 assertArrayEquals(credits, fieldValues, "credits parameter should set the value in class field name 'credits'");
             } else if (field.getName().equals("debits")) {
