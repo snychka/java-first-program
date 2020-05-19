@@ -11,11 +11,10 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -129,4 +128,23 @@ public class Module3_Test {
             }
         }
     }
+
+    @Test
+    public void m3_05_testSumOfCreditsExists() {
+        final String methodName = "sumOfCredits";
+
+        final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
+        assertTrue(maybeSavingsCalculator.isPresent());
+        final Class<?> savingsCalculator = maybeSavingsCalculator.get();
+
+        final Method[] methods = savingsCalculator.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method sumOfCredits = filteredMethod.get(0);
+        assertTrue(isPrivate(sumOfCredits), methodName + " must be declared as 'private'");
+        assertEquals(float.class, sumOfCredits.getReturnType(), methodName + " method must return a value of type 'float'");
+    }
+
 }
