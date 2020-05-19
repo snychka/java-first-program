@@ -17,8 +17,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.platform.commons.util.ReflectionUtils.*;
 
 public class Module3_Test {
@@ -97,6 +97,36 @@ public class Module3_Test {
 
         for (final Parameter parameter : constructor.getParameters()) {
             assertEquals(float[].class, parameter.getType(), "Constructor parameter should be of type 'float[]'");
+        }
+    }
+
+    @Test
+    public void m3_04_testFieldsValueSetWhenConstructorCalled() throws IllegalAccessException {
+        final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
+        assertTrue(maybeSavingsCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> savingsCalculator = maybeSavingsCalculator.get();
+        final Constructor<?>[] constructors = savingsCalculator.getDeclaredConstructors();
+
+        assertEquals(1, constructors.length, classToFind + " should have 1 constructor");
+
+        final Constructor<?> constructor = constructors[0];
+
+        float[] credits = new float[]{10.0f, 20.0f};
+        float[] debits = new float[]{5.0f};
+
+        final SavingsCalculator calculator = new SavingsCalculator(credits, debits);
+
+        final Class<?> clazz = calculator.getClass();
+        final Field[] fields = clazz.getDeclaredFields();
+
+        for (final Field field : fields) {
+            field.setAccessible(true);
+            float[] fieldValues = (float[]) field.get(calculator);
+            if (field.getName().equals("credits")) {
+                assertArrayEquals(credits, fieldValues, "credits parameter should set the value in class field name 'credits'");
+            } else if (field.getName().equals("debits")) {
+                assertArrayEquals(debits, fieldValues, "debits parameter should set the value in class field name 'debits'");
+            }
         }
     }
 }
