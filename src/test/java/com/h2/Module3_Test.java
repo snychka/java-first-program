@@ -207,4 +207,22 @@ public class Module3_Test {
         assertEquals(15.0f, result, methodName + " is not returning sum of debits.");
     }
 
+    @Test
+    public void m3_09_testRemainingDaysInMonthExists() {
+        final String methodName = "remainingDaysInMonth";
+
+        final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
+        assertTrue(maybeSavingsCalculator.isPresent());
+        final Class<?> savingsCalculator = maybeSavingsCalculator.get();
+
+        final Method[] methods = savingsCalculator.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method method = filteredMethod.get(0);
+        assertTrue(isPrivate(method), methodName + " must be declared as 'private'");
+        assertTrue(isStatic(method), methodName + " must be declared as 'static'");
+        assertEquals(int.class, method.getReturnType(), methodName + " method must return a value of type 'int'");
+    }
 }
