@@ -183,4 +183,28 @@ public class Module3_Test {
         assertEquals(float.class, sumOfCredits.getReturnType(), methodName + " method must return a value of type 'float'");
     }
 
+    @Test
+    public void m3_08_testSumOfDebitsWorksCorrectly() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
+        assertTrue(maybeSavingsCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> savingsCalculator = maybeSavingsCalculator.get();
+        final Constructor<?>[] constructors = savingsCalculator.getDeclaredConstructors();
+
+        assertEquals(1, constructors.length, classToFind + " should have 1 constructor");
+
+        float[] credits = new float[]{10.0f, 20.0f};
+        float[] debits = new float[]{5.0f, 10.f};
+        final Constructor<?> constructor = constructors[0];
+        Object instance = constructor.newInstance(credits, debits);
+
+        final String methodName = "sumOfDebits";
+        final Method[] methods = savingsCalculator.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+        Method method = filteredMethod.get(0);
+        final float result = (float) invokeMethod(method, instance);
+
+        assertEquals(15.0f, result, methodName + " is not returning sum of debits.");
+    }
+
 }
