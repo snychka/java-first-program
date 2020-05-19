@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.*;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -223,6 +224,11 @@ public class Module3_Test {
         final Method method = filteredMethod.get(0);
         assertTrue(isPrivate(method), methodName + " must be declared as 'private'");
         assertTrue(isStatic(method), methodName + " must be declared as 'static'");
+
+        final Class<?>[] parameterTypes = method.getParameterTypes();
+        assertEquals(1, parameterTypes.length, methodName + " must accept 1 parameter.");
+        assertEquals(LocalDate.class, parameterTypes[0],methodName + " must accept only 1 parameter of type 'LocalDate'");
+
         assertEquals(int.class, method.getReturnType(), methodName + " method must return a value of type 'int'");
     }
 }
