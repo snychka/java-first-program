@@ -171,7 +171,7 @@ public class Module3_Test {
         final String methodName = "sumOfDebits";
 
         final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
-        assertTrue(maybeSavingsCalculator.isPresent());
+        assertTrue(maybeSavingsCalculator.isPresent(), classToFind + " must exist");
         final Class<?> savingsCalculator = maybeSavingsCalculator.get();
 
         final Method[] methods = savingsCalculator.getDeclaredMethods();
@@ -213,7 +213,7 @@ public class Module3_Test {
         final String methodName = "remainingDaysInMonth";
 
         final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
-        assertTrue(maybeSavingsCalculator.isPresent());
+        assertTrue(maybeSavingsCalculator.isPresent(), classToFind + " must exist");
         final Class<?> savingsCalculator = maybeSavingsCalculator.get();
 
         final Method[] methods = savingsCalculator.getDeclaredMethods();
@@ -227,7 +227,7 @@ public class Module3_Test {
 
         final Class<?>[] parameterTypes = method.getParameterTypes();
         assertEquals(1, parameterTypes.length, methodName + " must accept 1 parameter.");
-        assertEquals(LocalDate.class, parameterTypes[0],methodName + " must accept only 1 parameter of type 'LocalDate'");
+        assertEquals(LocalDate.class, parameterTypes[0], methodName + " must accept only 1 parameter of type 'LocalDate'");
 
         assertEquals(int.class, method.getReturnType(), methodName + " method must return a value of type 'int'");
     }
@@ -237,7 +237,7 @@ public class Module3_Test {
         final String methodName = "remainingDaysInMonth";
 
         final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
-        assertTrue(maybeSavingsCalculator.isPresent());
+        assertTrue(maybeSavingsCalculator.isPresent(), classToFind + " must exist");
         final Class<?> savingsCalculator = maybeSavingsCalculator.get();
 
         final Method[] methods = savingsCalculator.getDeclaredMethods();
@@ -255,5 +255,46 @@ public class Module3_Test {
 
         final LocalDate _2Jun2020 = LocalDate.of(2020, 6, 2);
         assertEquals(28, invokeMethod(method, null, _2Jun2020), "For Jun 02, 2020, remainingDaysInMonth should return '28'");
+    }
+
+    @Test
+    public void m3_11_testCalculateExists() {
+        final String methodName = "calculate";
+
+        final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
+        assertTrue(maybeSavingsCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> savingsCalculator = maybeSavingsCalculator.get();
+
+        final Method[] methods = savingsCalculator.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method method = filteredMethod.get(0);
+        assertTrue(isPublic(method), methodName + " must be declared as 'public'");
+        assertEquals(float.class, method.getReturnType(), methodName + " method must return a value of type 'float'");
+    }
+
+    @Test
+    public void m3_12_testCalculateWorksCorrectly() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        final String methodName = "calculate";
+        final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
+        assertTrue(maybeSavingsCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> savingsCalculator = maybeSavingsCalculator.get();
+        final Constructor<?>[] constructors = savingsCalculator.getDeclaredConstructors();
+
+        assertEquals(1, constructors.length, classToFind + " should have 1 constructor");
+
+        float[] credits = new float[]{10.0f, 20.0f};
+        float[] debits = new float[]{5.0f};
+        final Constructor<?> constructor = constructors[0];
+        Object instance = constructor.newInstance(credits, debits);
+        final Method[] methods = savingsCalculator.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method method = filteredMethod.get(0);
+        assertEquals(25.0f, invokeMethod(method, instance), "The calculate function should return '25.0' as the return value for credits=[10.0f, 20.0f], debits=[5.0f]");
     }
 }
