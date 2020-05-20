@@ -297,4 +297,28 @@ public class Module3_Test {
         final Method method = filteredMethod.get(0);
         assertEquals(25.0f, invokeMethod(method, instance), "The calculate function should return '25.0' as the return value for credits=[10.0f, 20.0f], debits=[5.0f]");
     }
+
+    @Test
+    public void m3_12_testMainExists() {
+        final String methodName = "main";
+
+        final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
+        assertTrue(maybeSavingsCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> savingsCalculator = maybeSavingsCalculator.get();
+
+        final Method[] methods = savingsCalculator.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method method = filteredMethod.get(0);
+        assertTrue(isPublic(method), methodName + " must be declared as 'public'");
+        assertTrue(isStatic(method), methodName + " must be declared as 'static'");
+        assertEquals(void.class, method.getReturnType(), methodName + " method must return a value of type 'void'");
+
+        final Class<?>[] parameterTypes = method.getParameterTypes();
+        assertEquals(1, parameterTypes.length, methodName + " must accept 1 parameter.");
+        assertEquals(String[].class, parameterTypes[0], methodName + " must accept only 1 parameter of type 'String[]'");
+
+    }
 }
