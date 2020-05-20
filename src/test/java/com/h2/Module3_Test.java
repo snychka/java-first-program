@@ -299,7 +299,7 @@ public class Module3_Test {
     }
 
     @Test
-    public void m3_12_testMainExists() {
+    public void m3_13_testMainExists() {
         final String methodName = "main";
 
         final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
@@ -319,6 +319,34 @@ public class Module3_Test {
         final Class<?>[] parameterTypes = method.getParameterTypes();
         assertEquals(1, parameterTypes.length, methodName + " must accept 1 parameter.");
         assertEquals(String[].class, parameterTypes[0], methodName + " must accept only 1 parameter of type 'String[]'");
+    }
 
+    @Test
+    public void m3_14_testMainMethodPrintsCorrectOutput() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        final String methodName = "main";
+        final String remainingDaysInMonthMethodName = "remainingDaysInMonth";
+
+        final Optional<Class<?>> maybeSavingsCalculator = getSavingsClass();
+        assertTrue(maybeSavingsCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> savingsCalculator = maybeSavingsCalculator.get();
+
+        final Method[] methods = savingsCalculator.getDeclaredMethods();
+
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final List<Method> remainingDaysMethod = Arrays.stream(methods).filter(method -> method.getName().equals(remainingDaysInMonthMethodName)).collect(Collectors.toList());
+        assertEquals(1, remainingDaysMethod.size(), classToFind + " should contain a method called '" + remainingDaysInMonthMethodName + "'");
+
+        final LocalDate _1feb2020 = LocalDate.now();
+        final int remainingDays = (int) invokeMethod(remainingDaysMethod.get(0), null, _1feb2020);
+
+        final String credits = "10.0,20.0";
+        final String debits = "5.0,20.0";
+
+        Method method = savingsCalculator.getMethod("main", String[].class);
+        method.invoke(null, (Object) new String[]{credits, debits});
+
+        assertEquals("Net Savings = 5.0, remaining days in month = " + remainingDays + "\n", testOut.toString());
     }
 }
