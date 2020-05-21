@@ -2,7 +2,6 @@ package com.h2;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.function.Try;
 
@@ -148,5 +147,41 @@ public class Module04_Test {
         final Method sumOfCredits = filteredMethod.get(0);
         assertTrue(isPrivate(sumOfCredits), methodName + " must be declared as 'private'");
         assertEquals(int.class, sumOfCredits.getReturnType(), methodName + " method must return a value of type 'int'");
+    }
+
+    @Test
+    public void m4_04_testNumberOfPaymentsCorrectness() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
+        assertTrue(maybeMortgageCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> mortgageCalculator = maybeMortgageCalculator.get();
+        final Constructor<?>[] constructors = mortgageCalculator.getDeclaredConstructors();
+
+        assertEquals(1, constructors.length, classToFind + " should have 1 constructor");
+
+        final Constructor<?> constructor = constructors[0];
+        assertTrue(isPublic(constructor), "constructor must be declared 'public'");
+        assertEquals(3, constructor.getParameterCount(), "Constructor should have 3 parameters");
+
+        Parameter[] parameters = constructor.getParameters();
+        assertEquals(long.class, parameters[0].getType(), "Constructor's first parameter should be of type 'long'");
+        assertEquals(int.class, parameters[1].getType(), "Constructor's second parameter should be of type 'int'");
+        assertEquals(float.class, parameters[2].getType(), "Constructor's third parameter should be of type 'float'");
+
+        final long loanAmount = 100L;
+        final int termInYears = 20;
+        final float annualRate = 2.65f;
+
+        Object instance = constructor.newInstance(loanAmount, termInYears, annualRate);
+
+        final String methodName = "getNumberOfPayments";
+        final List<Method> filteredMethod = Arrays.stream(mortgageCalculator.getDeclaredMethods())
+                .filter(method -> method.getName().equals(methodName))
+                .collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+        Method method = filteredMethod.get(0);
+        final float result = (int) invokeMethod(method, instance);
+        int expected = 12 * termInYears;
+        assertEquals(expected, result, methodName + " should return " + expected + " number of payments for termInYears of " + termInYears);
     }
 }
