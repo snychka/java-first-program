@@ -238,4 +238,22 @@ public class Module04_Test {
         float expected = annualRate / 12;
         assertEquals(expected, result, methodName + " should return " + expected + " as monthly interest rate for a annualRate of " + annualRate);
     }
+
+    @Test
+    public void m4_08_testExistenceOfCalculateMonthlyPayment() {
+        final String methodName = "calculateMonthlyPayment";
+
+        final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
+        assertTrue(maybeMortgageCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> mortgageCalculator = maybeMortgageCalculator.get();
+
+        final Method[] methods = mortgageCalculator.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method method = filteredMethod.get(0);
+        assertTrue(isPublic(method), methodName + " must be declared as 'public'");
+        assertEquals(void.class, method.getReturnType(), methodName + " method must return a value of type 'void'");
+    }
 }
