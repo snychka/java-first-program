@@ -109,6 +109,10 @@ public class Module3_Test {
         float[] credits = new float[]{10.0f, 20.0f};
         float[] debits = new float[]{5.0f};
         final Constructor<?> constructor = constructors[0];
+
+        int parameterCount = constructor.getParameterCount();
+        assertEquals(2, parameterCount, classToFind + " must have a constructor with 2 parameters - credits and debits, both should be of type 'float[]'");
+
         Object instance = constructor.newInstance(credits, debits);
 
         final Field[] fields = savingsCalculator.getDeclaredFields();
@@ -154,6 +158,10 @@ public class Module3_Test {
         float[] credits = new float[]{10.0f, 20.0f};
         float[] debits = new float[]{5.0f};
         final Constructor<?> constructor = constructors[0];
+
+        int parameterCount = constructor.getParameterCount();
+        assertEquals(2, parameterCount, classToFind + " must have a constructor with 2 parameters - credits and debits, both should be of type 'float[]'");
+
         Object instance = constructor.newInstance(credits, debits);
 
         final String methodName = "sumOfCredits";
@@ -196,6 +204,10 @@ public class Module3_Test {
         float[] credits = new float[]{10.0f, 20.0f};
         float[] debits = new float[]{5.0f, 10.f};
         final Constructor<?> constructor = constructors[0];
+
+        int parameterCount = constructor.getParameterCount();
+        assertEquals(2, parameterCount, classToFind + " must have a constructor with 2 parameters - credits and debits, both should be of type 'float[]'");
+
         Object instance = constructor.newInstance(credits, debits);
 
         final String methodName = "sumOfDebits";
