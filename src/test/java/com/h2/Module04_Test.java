@@ -119,12 +119,16 @@ public class Module04_Test {
         final Field[] fields = mortgageCalculator.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
-            if (field.getName().equals("loanAmount")) {
-                assertEquals(loanAmount, (long) field.get(instance), "loanAmount should have value of " + loanAmount);
-            } else if (field.getName().equals("termInYears")) {
-                assertEquals(termInYears, (int) field.get(instance), "termInYears should have value of " + termInYears);
-            } else if (field.getName().equals("annualRate")) {
-                assertEquals(annualRate, (float) field.get(instance), "annualRate should have value of " + annualRate);
+            switch (field.getName()) {
+                case "loanAmount":
+                    assertEquals(loanAmount, (long) field.get(instance), "loanAmount should have value of " + loanAmount);
+                    break;
+                case "termInYears":
+                    assertEquals(termInYears, (int) field.get(instance), "termInYears should have value of " + termInYears);
+                    break;
+                case "annualRate":
+                    assertEquals(annualRate, (float) field.get(instance), "annualRate should have value of " + annualRate);
+                    break;
             }
         }
 
