@@ -132,7 +132,7 @@ public class Module04_Test {
     }
 
     @Test
-    public void m4_03_testExistenceOfNumberOfPayments() {
+    public void m4_04_testExistenceOfNumberOfPayments() {
         final String methodName = "getNumberOfPayments";
 
         final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
@@ -150,7 +150,7 @@ public class Module04_Test {
     }
 
     @Test
-    public void m4_04_testNumberOfPaymentsCorrectness() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public void m4_05_testNumberOfPaymentsCorrectness() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
         assertTrue(maybeMortgageCalculator.isPresent(), classToFind + " must exist");
         final Class<?> mortgageCalculator = maybeMortgageCalculator.get();
@@ -183,5 +183,23 @@ public class Module04_Test {
         final float result = (int) invokeMethod(method, instance);
         int expected = 12 * termInYears;
         assertEquals(expected, result, methodName + " should return " + expected + " number of payments for termInYears of " + termInYears);
+    }
+
+    @Test
+    public void m4_06_testExistenceOfMonthlyInterestRate() {
+        final String methodName = "getMonthlyInterestRate";
+
+        final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
+        assertTrue(maybeMortgageCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> mortgageCalculator = maybeMortgageCalculator.get();
+
+        final Method[] methods = mortgageCalculator.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method method = filteredMethod.get(0);
+        assertTrue(isPrivate(method), methodName + " must be declared as 'private'");
+        assertEquals(float.class, method.getReturnType(), methodName + " method must return a value of type 'float'");
     }
 }
