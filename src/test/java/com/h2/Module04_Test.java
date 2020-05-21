@@ -10,13 +10,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.platform.commons.util.ReflectionUtils.isPrivate;
-import static org.junit.platform.commons.util.ReflectionUtils.tryToLoadClass;
+import static org.junit.platform.commons.util.ReflectionUtils.*;
 
 public class Module04_Test {
     private final String classToFind = "com.h2.MortgageCalculator";
@@ -86,10 +88,45 @@ public class Module04_Test {
             actualFieldsToClass.put(field.getName(), field.getType());
         }
 
-        expectedFieldsToClass.entrySet()
-                .forEach(e -> {
-                    assertEquals(e.getValue(), actualFieldsToClass.get(e.getKey()), e.getKey() + " must be of type " + e.getValue());
-                });
+        expectedFieldsToClass.forEach((key, value) -> assertEquals(value, actualFieldsToClass.get(key), key + " must be of type " + value));
+
+    }
+
+    @Test
+    public void m4_03_testMortgageConstructorAndCorrectness() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
+        assertTrue(maybeMortgageCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> mortgageCalculator = maybeMortgageCalculator.get();
+        final Constructor<?>[] constructors = mortgageCalculator.getDeclaredConstructors();
+
+        assertEquals(1, constructors.length, classToFind + " should have 1 constructor");
+
+        final Constructor<?> constructor = constructors[0];
+        assertTrue(isPublic(constructor), "constructor must be declared 'public'");
+        assertEquals(3, constructor.getParameterCount(), "Constructor should have 3 parameters");
+
+        Parameter[] parameters = constructor.getParameters();
+        assertEquals(long.class, parameters[0].getType(), "Constructor's first parameter should be of type 'long'");
+        assertEquals(int.class, parameters[1].getType(), "Constructor's second parameter should be of type 'int'");
+        assertEquals(float.class, parameters[2].getType(), "Constructor's third parameter should be of type 'float'");
+
+        final long loanAmount = 100L;
+        final int termInYears = 20;
+        final float annualRate = 2.65f;
+
+        Object instance = constructor.newInstance(loanAmount, termInYears, annualRate);
+
+        final Field[] fields = mortgageCalculator.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (field.getName().equals("loanAmount")) {
+                assertEquals(loanAmount, (long) field.get(instance), "loanAmount should have value of " + loanAmount);
+            } else if (field.getName().equals("termInYears")) {
+                assertEquals(termInYears, (int) field.get(instance), "termInYears should have value of " + termInYears);
+            } else if (field.getName().equals("annualRate")) {
+                assertEquals(annualRate, (float) field.get(instance), "annualRate should have value of " + annualRate);
+            }
+        }
 
     }
 }
