@@ -321,6 +321,54 @@ public class Module04_Test {
     }
 
     @Test
+    public void m4_11_testToStringCorrectness() throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
+        final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
+        assertTrue(maybeMortgageCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> mortgageCalculator = maybeMortgageCalculator.get();
+        final Constructor<?>[] constructors = mortgageCalculator.getDeclaredConstructors();
+
+        assertEquals(1, constructors.length, classToFind + " should have 1 constructor");
+
+        final Constructor<?> constructor = constructors[0];
+        assertTrue(isPublic(constructor), "constructor must be declared 'public'");
+        assertEquals(3, constructor.getParameterCount(), "Constructor should have 3 parameters");
+
+        Parameter[] parameters = constructor.getParameters();
+        assertEquals(long.class, parameters[0].getType(), "Constructor's first parameter should be of type 'long'");
+        assertEquals(int.class, parameters[1].getType(), "Constructor's second parameter should be of type 'int'");
+        assertEquals(float.class, parameters[2].getType(), "Constructor's third parameter should be of type 'float'");
+
+        final long loanAmount = 264000;
+        final int termInYears = 30;
+        final float annualRate = 3.74f;
+
+        Object instance = constructor.newInstance(loanAmount, termInYears, annualRate);
+        {
+            final String methodName = "calculateMonthlyPayment";
+            final List<Method> filteredMethod = Arrays.stream(mortgageCalculator.getDeclaredMethods())
+                    .filter(method -> method.getName().equals(methodName))
+                    .collect(Collectors.toList());
+
+            assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+            Method method = filteredMethod.get(0);
+            invokeMethod(method, instance);
+        }
+
+        {
+            final String methodName = "toString";
+            final List<Method> filteredMethod = Arrays.stream(mortgageCalculator.getDeclaredMethods())
+                    .filter(method -> method.getName().equals(methodName))
+                    .collect(Collectors.toList());
+
+            assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+            Method method = filteredMethod.get(0);
+            final String result = (String) invokeMethod(method, instance);
+            final String expected = "monthlyPayment: 1221.14";
+            assertEquals(expected, result, methodName + " should return " + expected);
+        }
+    }
+
+    @Test
     public void m3_xx_testMainMethodExists() {
         final String methodName = "main";
 
