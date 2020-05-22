@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -302,7 +303,25 @@ public class Module04_Test {
     }
 
     @Test
-    public void m3_10_testMainMethodExists() {
+    public void m4_10_testExistenceOfToString() {
+        final String methodName = "toString";
+
+        final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
+        assertTrue(maybeMortgageCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> mortgageCalculator = maybeMortgageCalculator.get();
+
+        final Method[] methods = mortgageCalculator.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method method = filteredMethod.get(0);
+        assertTrue(isPublic(method), methodName + " must be declared as 'public'");
+        assertEquals(String.class, method.getReturnType(), methodName + " method must return a value of type 'String'");
+    }
+
+    @Test
+    public void m3_xx_testMainMethodExists() {
         final String methodName = "main";
 
         final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
