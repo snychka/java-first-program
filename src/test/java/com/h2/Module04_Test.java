@@ -13,8 +13,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.platform.commons.util.ReflectionUtils.*;
 
 public class Module04_Test {
@@ -223,7 +222,7 @@ public class Module04_Test {
 
         final long loanAmount = 100L;
         final int termInYears = 20;
-        final float annualRate = 2.65f;
+        final float annualRate = 3.74f;
 
         Object instance = constructor.newInstance(loanAmount, termInYears, annualRate);
 
@@ -235,7 +234,7 @@ public class Module04_Test {
         assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
         Method method = filteredMethod.get(0);
         final float result = (float) invokeMethod(method, instance);
-        float expected = annualRate / 12;
+        float expected = (annualRate / 100) / 12;
         assertEquals(expected, result, methodName + " should return " + expected + " as monthly interest rate for a annualRate of " + annualRate);
     }
 
@@ -255,5 +254,50 @@ public class Module04_Test {
         final Method method = filteredMethod.get(0);
         assertTrue(isPublic(method), methodName + " must be declared as 'public'");
         assertEquals(void.class, method.getReturnType(), methodName + " method must return a value of type 'void'");
+    }
+
+    @Test
+    public void m4_09_testCalculateMonthlyPaymentCorrectness() throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
+        final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
+        assertTrue(maybeMortgageCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> mortgageCalculator = maybeMortgageCalculator.get();
+        final Constructor<?>[] constructors = mortgageCalculator.getDeclaredConstructors();
+
+        assertEquals(1, constructors.length, classToFind + " should have 1 constructor");
+
+        final Constructor<?> constructor = constructors[0];
+        assertTrue(isPublic(constructor), "constructor must be declared 'public'");
+        assertEquals(3, constructor.getParameterCount(), "Constructor should have 3 parameters");
+
+        Parameter[] parameters = constructor.getParameters();
+        assertEquals(long.class, parameters[0].getType(), "Constructor's first parameter should be of type 'long'");
+        assertEquals(int.class, parameters[1].getType(), "Constructor's second parameter should be of type 'int'");
+        assertEquals(float.class, parameters[2].getType(), "Constructor's third parameter should be of type 'float'");
+
+        final long loanAmount = 264000;
+        final int termInYears = 30;
+        final float annualRate = 3.74f;
+
+        Object instance = constructor.newInstance(loanAmount, termInYears, annualRate);
+
+        final String methodName = "calculateMonthlyPayment";
+        final List<Method> filteredMethod = Arrays.stream(mortgageCalculator.getDeclaredMethods())
+                .filter(method -> method.getName().equals(methodName))
+                .collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+        Method method = filteredMethod.get(0);
+        invokeMethod(method, instance);
+        double expected = 1221.1400903847025;
+
+        String fieldName = "monthlyPayment";
+        Field field = mortgageCalculator.getDeclaredField(fieldName);
+        field.setAccessible(true);
+
+        double actual = field.getDouble(instance);
+        assertNotEquals(0.0, actual, fieldName + " should not be 0.0");
+
+        boolean areAlmostSame = Math.abs(expected - actual) < 0.001;
+        assertTrue(areAlmostSame, fieldName + " should be " + expected + " (or with a margin of +0.001), but was " + actual);
     }
 }
