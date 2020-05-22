@@ -370,7 +370,7 @@ public class Module04_Test {
     }
 
     @Test
-    public void m3_12_testMainMethodExists() {
+    public void m4_12_testMainMethodExists() {
         final String methodName = "main";
 
         final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
@@ -393,7 +393,7 @@ public class Module04_Test {
     }
 
     @Test
-    public void m3_13_testMainMethodPrintsCorrectMortgageAmount() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    public void m4_13_testMainMethodPrintsCorrectMortgageAmount() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         final String methodName = "main";
 
         final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
