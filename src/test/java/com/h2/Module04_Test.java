@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -369,7 +370,7 @@ public class Module04_Test {
     }
 
     @Test
-    public void m3_xx_testMainMethodExists() {
+    public void m3_12_testMainMethodExists() {
         final String methodName = "main";
 
         final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
@@ -389,5 +390,28 @@ public class Module04_Test {
         final Class<?>[] parameterTypes = method.getParameterTypes();
         assertEquals(1, parameterTypes.length, methodName + " must accept 1 parameter.");
         assertEquals(String[].class, parameterTypes[0], methodName + " must accept only 1 parameter of type 'String[]'");
+    }
+
+    @Test
+    public void m3_13_testMainMethodPrintsCorrectMortgageAmount() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        final String methodName = "main";
+
+        final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
+        assertTrue(maybeMortgageCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> mortgageCalculator = maybeMortgageCalculator.get();
+
+        final Method[] methods = mortgageCalculator.getDeclaredMethods();
+
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final String loanAmount = "264000";
+        final String termInYears = "30";
+        final String annualRate = "3.74";
+
+        Method method = mortgageCalculator.getMethod("main", String[].class);
+        method.invoke(null, (Object) new String[]{loanAmount, termInYears, annualRate});
+
+        assertEquals("monthlyPayment: 1221.14" + "\n", testOut.toString());
     }
 }
