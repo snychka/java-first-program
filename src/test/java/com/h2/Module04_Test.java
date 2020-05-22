@@ -300,4 +300,27 @@ public class Module04_Test {
         boolean areAlmostSame = Math.abs(expected - actual) < 0.001;
         assertTrue(areAlmostSame, fieldName + " should be " + expected + " (or with a margin of +0.001), but was " + actual);
     }
+
+    @Test
+    public void m3_10_testMainMethodExists() {
+        final String methodName = "main";
+
+        final Optional<Class<?>> maybeMortgageCalculator = getMortgageClass();
+        assertTrue(maybeMortgageCalculator.isPresent(), classToFind + " must exist");
+        final Class<?> mortgageCalculator = maybeMortgageCalculator.get();
+
+        final Method[] methods = mortgageCalculator.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method method = filteredMethod.get(0);
+        assertTrue(isPublic(method), methodName + " must be declared as 'public'");
+        assertTrue(isStatic(method), methodName + " must be declared as 'static'");
+        assertEquals(void.class, method.getReturnType(), methodName + " method must return a value of type 'void'");
+
+        final Class<?>[] parameterTypes = method.getParameterTypes();
+        assertEquals(1, parameterTypes.length, methodName + " must accept 1 parameter.");
+        assertEquals(String[].class, parameterTypes[0], methodName + " must accept only 1 parameter of type 'String[]'");
+    }
 }
