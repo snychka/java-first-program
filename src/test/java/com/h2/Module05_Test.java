@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.function.Try;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -60,7 +61,36 @@ public class Module05_Test {
     }
 
     @Test
-    public void m5_03_testCommandsToUsage() {
+    public void m5_03_testCommandsToUsage() throws IllegalAccessException {
+        final Optional<Class<?>> maybeClass = getFinanceClass();
+        assertTrue(maybeClass.isPresent(), classToFind + " should be present");
+        assertEquals(classToFind, maybeClass.get().getCanonicalName());
+
+        final Class<?> aClass = maybeClass.get();
+
+        final String fieldName = "commandsToUsage";
+        try {
+            Field field = aClass.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            assertEquals(Map.class, field.getType(), fieldName + " must be of type 'Map<String, String>'");
+
+            final Map<String, String> expected = Map.of(
+                    "bestLoanRates", "usage: bestLoanRates",
+                    "savingsCalculator", "usage: savingsCalculator <credits separated by ','> <debits separated by ','>",
+                    "mortgageCalculator", "usage: mortgageCalculator <loanAmount> <termInYears> <annualRate>"
+            );
+
+            @SuppressWarnings("unchecked")
+            Map<String, String> commandsToUsage = (Map<String, String>) field.get(null);
+            assertEquals(3, commandsToUsage.size(), fieldName + " should have 3 entries");
+            expected.forEach((key, value) -> {
+                assertTrue(commandsToUsage.containsKey(key), key + " must be present in 'commandsToUsage'");
+                assertEquals(value, commandsToUsage.get(key), key + " must have a value of - " + value);
+            });
+
+        } catch (NoSuchFieldException e) {
+            fail("Cannot find a field called " + fieldName);
+        }
         /*
          * 1. Existence of field
          * 2. isPublic, isFinal, isStatic, isMap (type)
