@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -127,7 +128,72 @@ public class Module05_Test {
     }
 
     @Test
-    public void m5_04_testExecuteCommandExistence() {
+    public void m5_04_testValidateCommandArgumentsExistence() {
+        final Optional<Class<?>> maybeClass = getFinanceClass();
+        assertTrue(maybeClass.isPresent(), classToFind + " should be present");
+        assertEquals(classToFind, maybeClass.get().getCanonicalName());
+
+        final Class<?> aClass = maybeClass.get();
+        final String methodName = "validateCommandArguments";
+
+        try {
+            Method method = aClass.getDeclaredMethod(methodName, String[].class);
+            assertTrue(isPrivate(method), methodName + " must be declared 'private'");
+            assertTrue(isStatic(method), methodName + " must be declared 'static'");
+            assertEquals(boolean.class, method.getReturnType(), methodName + " must have a 'boolean' return type");
+
+        } catch (NoSuchMethodException e) {
+            fail("Can't find a method with name " + methodName + " in class " + classToFind + " with 1 parameter of type 'String[]'");
+        }
+    }
+
+    @Test
+    public void m5_05_testValidateCommandArgumentsCorrectness() throws InvocationTargetException, IllegalAccessException {
+        final Optional<Class<?>> maybeClass = getFinanceClass();
+        assertTrue(maybeClass.isPresent(), classToFind + " should be present");
+        assertEquals(classToFind, maybeClass.get().getCanonicalName());
+
+        final Class<?> aClass = maybeClass.get();
+        final String methodName = "validateCommandArguments";
+
+        try {
+            Method aMethod = aClass.getDeclaredMethod(methodName, String[].class);
+            aMethod.setAccessible(true);
+            {
+                boolean actual = (boolean) aMethod.invoke(null, (Object) new String[]{"bestLoanRates"});
+                assertTrue(actual, methodName + " should have returned 'true' for bestLoanRates with no additional arguments");
+            }
+            {
+                boolean actual = (boolean) aMethod.invoke(null, (Object) new String[]{"bestLoanRates", "1"});
+                assertFalse(actual, methodName + " should have returned 'false' for bestLoanRates with 1 additional argument");
+            }
+            {
+                boolean actual = (boolean) aMethod.invoke(null, (Object) new String[]{"savingsCalculator", "1"});
+                assertFalse(actual, methodName + " should have returned 'false' for savingsCalculator with 1 additional argument");
+            }
+            {
+                boolean actual = (boolean) aMethod.invoke(null, (Object) new String[]{"savingsCalculator", "1", "2"});
+                assertTrue(actual, methodName + " should have returned 'true' for savingsCalculator with 2 additional arguments");
+            }
+            {
+                boolean actual = (boolean) aMethod.invoke(null, (Object) new String[]{"mortgageCalculator", "1", "2"});
+                assertFalse(actual, methodName + " should have returned 'false' for mortgageCalculator with 2 additional arguments");
+            }
+            {
+                boolean actual = (boolean) aMethod.invoke(null, (Object) new String[]{"mortgageCalculator", "1", "2", "3"});
+                assertTrue(actual, methodName + " should have returned 'true' for mortgageCalculator with 3 additional arguments");
+            }
+            {
+                boolean actual = (boolean) aMethod.invoke(null, (Object) new String[]{"heightCalculator"});
+                assertFalse(actual, methodName + " should have returned 'false' for unknown app name 'heightCalculator'");
+            }
+        } catch (NoSuchMethodException e) {
+            fail("Can't find a method with name " + methodName + " in class " + classToFind + " with 1 parameter of type 'String[]'");
+        }
+    }
+
+    @Test
+    public void m5_06_testExecuteCommandExistence() {
         final Optional<Class<?>> maybeClass = getFinanceClass();
         assertTrue(maybeClass.isPresent(), classToFind + " should be present");
         assertEquals(classToFind, maybeClass.get().getCanonicalName());
@@ -147,7 +213,7 @@ public class Module05_Test {
     }
 
     @Test
-    public void m5_05_testExecuteCommandExistenceForCorrectness() {
+    public void m5_07_testExecuteCommandExistenceForCorrectness() {
         final String methodName = "executeCommand";
 
         final Optional<Class<?>> maybeClass = getFinanceClass();
