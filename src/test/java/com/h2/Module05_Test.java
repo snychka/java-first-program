@@ -1,20 +1,51 @@
 package com.h2;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.function.Try;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.platform.commons.util.ReflectionUtils.*;
 
 public class Module05_Test {
     private final String classToFind = "Finance";
+
+    private final InputStream systemIn = System.in;
+    private final PrintStream systemOut = System.out;
+
+    private ByteArrayInputStream testIn;
+    private ByteArrayOutputStream testOut;
+
+    @BeforeEach
+    public void setUpOutput() {
+        testOut = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(testOut));
+    }
+
+    private void provideInput(String data) {
+        testIn = new ByteArrayInputStream(data.getBytes());
+        System.setIn(testIn);
+    }
+
+    private String getOutput() {
+        return testOut.toString();
+    }
+
+    @AfterEach
+    public void restoreSystemInputOutput() {
+        System.setIn(systemIn);
+        System.setOut(systemOut);
+    }
 
     public Optional<Class<?>> getFinanceClass() {
         Try<Class<?>> aClass = tryToLoadClass(classToFind);
@@ -93,12 +124,6 @@ public class Module05_Test {
         } catch (NoSuchFieldException e) {
             fail("Cannot find a field called " + fieldName + " in class " + classToFind);
         }
-        /*
-         * 1. Existence of field
-         * 2. isPublic, isFinal, isStatic, isMap (type)
-         * 3. Has 3 entries
-         * 4. Test all entries
-         */
     }
 
     @Test
@@ -118,6 +143,65 @@ public class Module05_Test {
 
         } catch (NoSuchMethodException e) {
             fail("Can't find a method with name " + methodName + " in class " + classToFind + " with 2 parameters, first with type 'String', second with type 'String[]'");
+        }
+    }
+
+    @Test
+    public void m5_05_testExecuteCommandExistenceForCorrectness() {
+        final String methodName = "executeCommand";
+
+        final Optional<Class<?>> maybeClass = getFinanceClass();
+        assertTrue(maybeClass.isPresent(), classToFind + " must exist");
+        final Class<?> aClass = maybeClass.get();
+
+        final Method[] methods = aClass.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method method = filteredMethod.get(0);
+        {
+            final String credits = "10.0,20.0";
+            final String debits = "5.0,20.0";
+
+            invokeMethod(method, null, "savingsCalculator", new String[]{credits, debits});
+
+            List<String> consoleOutputs = Arrays.asList(testOut.toString().split("\n"));
+
+            assertEquals(2, consoleOutputs.size(), "For case SAVINGS_CALCULATOR, " + methodName + " should print 2 statements on the console. One for 'Finding your net savings ...' and another one should be the output from the SavingsCalculator");
+            assertEquals("Finding your net savings ...", consoleOutputs.get(0));
+            assertTrue(consoleOutputs.get(1).startsWith("Net Savings = 5.0, remaining days in month = "), "For case SAVINGS_CALCULATOR, " + methodName + " should have printed an output similar to 'Net Savings = 51.0, remaining days in month = '");
+            setUpOutput();
+        }
+        {
+            final String loanAmount = "264000";
+            final String termInYears = "30";
+            final String annualRate = "3.74";
+            invokeMethod(method, null, "mortgageCalculator", new String[]{loanAmount, termInYears, annualRate});
+
+            List<String> consoleOutputs = Arrays.asList(testOut.toString().split("\n"));
+
+            assertEquals(2, consoleOutputs.size(), "For case MORTGAGE_CALCULATOR, " + methodName + " should print 2 statements on the console. One for 'Finding your monthly payment ...' and another one should be the output from the MortgageCalculator");
+            assertEquals("Finding your monthly payment ...", consoleOutputs.get(0));
+            assertEquals("monthlyPayment: 1221.14", consoleOutputs.get(1));
+            setUpOutput();
+        }
+        {
+            final String name = "H2";
+            final int loanTermInYears = 20;
+            final String testString = name + "\n" + loanTermInYears;
+            provideInput(testString);
+
+            invokeMethod(method, null, "bestLoanRates", new String[]{});
+            List<String> consoleOutputs = Arrays.asList(testOut.toString().split("\n"));
+
+            assertEquals(5, consoleOutputs.size(), "For case BEST_LOAN_RATES, There must be 4 statements on console - 1 for asking name, 1 for printing name back, 1 for asking loan term, 1 for printing no available rates for term (strictly in this order!)");
+
+            assertEquals("Finding best loan rates ...", consoleOutputs.get(0));
+            assertEquals("Enter your name", consoleOutputs.get(1));
+            assertEquals("Hello " + name, consoleOutputs.get(2));
+
+            assertEquals("Enter the loan term (in years)", consoleOutputs.get(3));
+            assertEquals("No available rates for term: " + loanTermInYears + " years", consoleOutputs.get(4));
         }
     }
 }
