@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.function.Try;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -89,7 +91,7 @@ public class Module05_Test {
             });
 
         } catch (NoSuchFieldException e) {
-            fail("Cannot find a field called " + fieldName);
+            fail("Cannot find a field called " + fieldName + " in class " + classToFind);
         }
         /*
          * 1. Existence of field
@@ -99,4 +101,23 @@ public class Module05_Test {
          */
     }
 
+    @Test
+    public void m5_04_testExecuteCommandExistence() {
+        final Optional<Class<?>> maybeClass = getFinanceClass();
+        assertTrue(maybeClass.isPresent(), classToFind + " should be present");
+        assertEquals(classToFind, maybeClass.get().getCanonicalName());
+
+        final Class<?> aClass = maybeClass.get();
+        final String methodName = "executeCommand";
+
+        try {
+            Method method = aClass.getDeclaredMethod(methodName, String.class, String[].class);
+            assertTrue(isPrivate(method), methodName + " must be declared 'private'");
+            assertTrue(isStatic(method), methodName + " must be declared 'static'");
+            assertEquals(void.class, method.getReturnType(), methodName + " must have a 'void' return type");
+
+        } catch (NoSuchMethodException e) {
+            fail("Can't find a method with name " + methodName + " in class " + classToFind + " with 2 parameters, first with type 'String', second with type 'String[]'");
+        }
+    }
 }
