@@ -327,8 +327,6 @@ public class Module05_Test {
             final String annualRate = "3.74";
 
             method.invoke(null, (Object) new String[]{"mortgageCalculator", loanAmount, termInYears, annualRate});
-            //invokeMethod(method, null, "mortgageCalculator", new String[]{loanAmount, termInYears, annualRate});
-
             List<String> consoleOutputs = Arrays.asList(testOut.toString().split("\n"));
 
             assertEquals(2, consoleOutputs.size(), "For case MORTGAGE_CALCULATOR, " + methodName + " should print 2 statements on the console. One for 'Finding your monthly payment ...' and another one should be the output from the MortgageCalculator");
