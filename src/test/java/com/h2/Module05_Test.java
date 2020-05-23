@@ -270,4 +270,70 @@ public class Module05_Test {
             assertEquals("No available rates for term: " + loanTermInYears + " years", consoleOutputs.get(4));
         }
     }
+
+    @Test
+    public void m5_08_testFinanceMainMethodExists() {
+        final String methodName = "main";
+
+        final Optional<Class<?>> maybeClass = getFinanceClass();
+        assertTrue(maybeClass.isPresent(), classToFind + " must exist");
+        final Class<?> aClass = maybeClass.get();
+
+        final Method[] methods = aClass.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+        final Method method = filteredMethod.get(0);
+        assertTrue(isPublic(method), methodName + " must be declared as 'public'");
+        assertTrue(isStatic(method), methodName + " must be declared as 'static'");
+        assertEquals(void.class, method.getReturnType(), methodName + " method must return a value of type 'void'");
+
+        final Class<?>[] parameterTypes = method.getParameterTypes();
+        assertEquals(1, parameterTypes.length, methodName + " must accept 1 parameter.");
+        assertEquals(String[].class, parameterTypes[0], methodName + " must accept only 1 parameter of type 'String[]'");
+    }
+    @Test
+    public void m5_09_testFinanceMainMethodWorksCorrectly() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        final String methodName = "main";
+
+        final Optional<Class<?>> maybeClass = getFinanceClass();
+        assertTrue(maybeClass.isPresent(), classToFind + " must exist");
+        final Class<?> aClass = maybeClass.get();
+
+        final Method[] methods = aClass.getDeclaredMethods();
+        final List<Method> filteredMethod = Arrays.stream(methods).filter(method -> method.getName().equals(methodName)).collect(Collectors.toList());
+        assertEquals(1, filteredMethod.size(), classToFind + " should contain a method called '" + methodName + "'");
+
+
+
+        Method method = aClass.getMethod("main", String[].class);
+        {
+            String command = "LaunchRocketToMoon";
+            method.invoke(null, (Object) new String[]{command});
+            assertEquals(command + ": command not found" + "\n", testOut.toString());
+        }
+        {
+            setUpOutput();
+            final String loanAmount = "264000";
+            final String termInYears = "30";
+            method.invoke(null, (Object) new String[]{"mortgageCalculator", loanAmount, termInYears});
+            assertEquals("usage: mortgageCalculator <loanAmount> <termInYears> <annualRate>" + "\n", testOut.toString());
+        }
+        {
+            setUpOutput();
+            final String loanAmount = "264000";
+            final String termInYears = "30";
+            final String annualRate = "3.74";
+
+            method.invoke(null, (Object) new String[]{"mortgageCalculator", loanAmount, termInYears, annualRate});
+            //invokeMethod(method, null, "mortgageCalculator", new String[]{loanAmount, termInYears, annualRate});
+
+            List<String> consoleOutputs = Arrays.asList(testOut.toString().split("\n"));
+
+            assertEquals(2, consoleOutputs.size(), "For case MORTGAGE_CALCULATOR, " + methodName + " should print 2 statements on the console. One for 'Finding your monthly payment ...' and another one should be the output from the MortgageCalculator");
+            assertEquals("Finding your monthly payment ...", consoleOutputs.get(0));
+            assertEquals("monthlyPayment: 1221.14", consoleOutputs.get(1));
+        }
+    }
 }
