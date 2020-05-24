@@ -101,4 +101,34 @@ public class Module06_Test {
             fail("Can't find a method with name " + methodName + " in class " + classToFind + " with 1 parameter of type 'String'");
         }
     }
+
+    @Test
+    public void m6_05_testGetFloatValueExistenceAndCorrectness() throws IllegalAccessException, InvocationTargetException {
+        final String methodName = "getFloatValue";
+        final Optional<Class<?>> maybeClass = getUtilitiesClass();
+        assertTrue(maybeClass.isPresent(), classToFind + " should be present");
+        assertEquals(classToFind, maybeClass.get().getCanonicalName());
+
+        final Class<?> aClass = maybeClass.get();
+        try {
+            Method method = aClass.getMethod(methodName, String.class);
+            assertTrue(isPublic(method), methodName + " must be declared 'public'");
+            assertTrue(isStatic(method), methodName + " must be declared 'static'");
+            assertEquals(float.class, method.getReturnType(), methodName + " must have a 'float' return type");
+
+            {
+                float result = (float) method.invoke(null, "123.12");
+                assertEquals(123.12f, result, methodName + " should convert '123.12' into '123.12f'");
+            }
+            {
+                String input = "hello";
+                final InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> method.invoke(null, input));
+                Throwable targetException = exception.getTargetException();
+                assertEquals(IllegalArgumentException.class, targetException.getClass(), methodName + " should have thrown an instance of 'IllegalArgumentException'");
+                assertEquals(input + " cannot be converted into a 'float' value. Exiting program.", targetException.getMessage());
+            }
+        } catch (NoSuchMethodException e) {
+            fail("Can't find a method with name " + methodName + " in class " + classToFind + " with 1 parameter of type 'String'");
+        }
+    }
 }
