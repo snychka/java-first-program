@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.platform.commons.util.ReflectionUtils.*;
 
 public class Module04_Test {
-    private final String classToFind = "com.h2.MortgageCalculator";
+    private static final String classToFind = "com.h2.MortgageCalculator";
     private final InputStream systemIn = System.in;
     private final PrintStream systemOut = System.out;
 
@@ -50,7 +50,7 @@ public class Module04_Test {
         return aClass.toOptional();
     }
 
-    public Optional<Class<?>> getMortgageClass() {
+    public static Optional<Class<?>> getMortgageClass() {
         return getClass(classToFind);
     }
 
