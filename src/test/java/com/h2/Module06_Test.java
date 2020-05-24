@@ -67,10 +67,38 @@ public class Module06_Test {
                 assertEquals(IllegalArgumentException.class, targetException.getClass(), methodName + " should have thrown an instance of 'IllegalArgumentException'");
                 assertEquals(input + " cannot be converted into a 'long' value. Exiting program.", targetException.getMessage());
             }
-
         } catch (NoSuchMethodException e) {
             fail("Can't find a method with name " + methodName + " in class " + classToFind + " with 1 parameter of type 'String'");
         }
+    }
 
+    @Test
+    public void m6_04_testGetIntValueExistenceAndCorrectness() throws IllegalAccessException, InvocationTargetException {
+        final String methodName = "getIntValue";
+        final Optional<Class<?>> maybeClass = getUtilitiesClass();
+        assertTrue(maybeClass.isPresent(), classToFind + " should be present");
+        assertEquals(classToFind, maybeClass.get().getCanonicalName());
+
+        final Class<?> aClass = maybeClass.get();
+        try {
+            Method method = aClass.getMethod(methodName, String.class);
+            assertTrue(isPublic(method), methodName + " must be declared 'public'");
+            assertTrue(isStatic(method), methodName + " must be declared 'static'");
+            assertEquals(int.class, method.getReturnType(), methodName + " must have a 'int' return type");
+
+            {
+                int result = (int) method.invoke(null, "100");
+                assertEquals(100, result, methodName + " should convert '100' into '100'");
+            }
+            {
+                String input = "hello";
+                final InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> method.invoke(null, input));
+                Throwable targetException = exception.getTargetException();
+                assertEquals(IllegalArgumentException.class, targetException.getClass(), methodName + " should have thrown an instance of 'IllegalArgumentException'");
+                assertEquals(input + " cannot be converted into a 'int' value. Exiting program.", targetException.getMessage());
+            }
+        } catch (NoSuchMethodException e) {
+            fail("Can't find a method with name " + methodName + " in class " + classToFind + " with 1 parameter of type 'String'");
+        }
     }
 }
