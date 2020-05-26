@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.platform.commons.util.ReflectionUtils.*;
 
-public class Module06_Test {
+public class Module6_Test {
     private final String classToFind = "com.h2.Utilities";
 
 
@@ -139,7 +139,7 @@ public class Module06_Test {
     public void m6_06_testMainMethodPrintsCorrectMortgageAmount() throws NoSuchMethodException {
         final String methodName = "main";
 
-        final Optional<Class<?>> maybeMortgageCalculator = Module04_Test.getMortgageClass();
+        final Optional<Class<?>> maybeMortgageCalculator = Module4_Test.getMortgageClass();
         assertTrue(maybeMortgageCalculator.isPresent(), classToFind + " must exist");
         final Class<?> mortgageCalculator = maybeMortgageCalculator.get();
 
