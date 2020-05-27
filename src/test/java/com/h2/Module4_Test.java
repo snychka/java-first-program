@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.platform.commons.util.ReflectionUtils.*;
 
-public class Module04_Test {
+public class Module4_Test {
     private static final String classToFind = "com.h2.MortgageCalculator";
     private final InputStream systemIn = System.in;
     private final PrintStream systemOut = System.out;

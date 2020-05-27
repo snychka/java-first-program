@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.platform.commons.util.ReflectionUtils.*;
 
-public class Module05_Test {
+public class Module5_Test {
     private final String classToFind = "Finance";
 
     private final InputStream systemIn = System.in;
